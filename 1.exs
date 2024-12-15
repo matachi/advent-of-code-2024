@@ -1,4 +1,4 @@
-content = File.read!("1-input1.txt")
+content = File.read!("1-input.txt")
 
 line_values = content
 |> String.split("\n")
