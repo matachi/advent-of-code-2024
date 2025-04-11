@@ -72,9 +72,57 @@ defmodule Functions do
   def get_width(grid), do: Enum.count(Enum.at(grid, 0))
 
   def get_height(grid), do: Enum.count(grid)
+
+  def count_x_mas(file_content) do
+    grid = make_grid(file_content)
+    char_lists = extract_char_lists2(grid, {0, 0})
+    char_lists
+    |> Enum.map(& check_if_x_mas(&1))
+    |> Enum.count(& &1)
+  end
+
+  def extract_char_lists2(grid, {x, y}) do
+    char_lists =
+      [extract_x(grid, {x, y})]
+      |> Enum.filter(& &1)
+    max_x = get_width(grid) - 1
+    max_y = get_height(grid) - 1
+    case {x, y} do
+      {^max_x, ^max_y} -> char_lists
+      {^max_x, _} -> char_lists ++ extract_char_lists2(grid, {0, y + 1})
+      {_, _} -> char_lists ++ extract_char_lists2(grid, {x + 1, y})
+    end
+  end
+
+  def extract_x(grid, {x, y}) do
+    case x >= 1 and x <= get_width(grid) - 2 and y >= 1 and y <= get_height(grid) - 2 do
+      true -> [
+        get_value(grid, x - 1, y - 1),
+        get_value(grid, x + 1, y - 1),
+        get_value(grid, x, y),
+        get_value(grid, x - 1, y + 1),
+        get_value(grid, x + 1, y + 1)
+      ]
+      false -> nil
+    end
+  end
+
+  def check_if_x_mas(chars) do
+    case chars do
+      ~c"MMASS" -> true
+      ~c"MSAMS" -> true
+      ~c"SMASM" -> true
+      ~c"SSAMM" -> true
+      _ -> false
+    end
+  end
+
 end
 
 file_content = File.read!("4-input.txt")
 
 number_of_xmas = file_content |> Functions.count_xmas
 IO.puts "Number of XMAS: #{number_of_xmas}"
+
+number_of_x_mas = file_content |> Functions.count_x_mas
+IO.puts "Number of X-MAS: #{number_of_x_mas}"
